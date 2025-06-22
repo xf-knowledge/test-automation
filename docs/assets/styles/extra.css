@@ -1,0 +1,81 @@
+/* 自定义样式 */
+@font-face {
+  font-family: "Maple Mono";
+  src: url("../fonts/MapleMono-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Zhan Ku";
+  src: url("../fonts/ZhanKuHuangYouTi.ttf") format("ttf");
+}
+
+/* 
+  添加新字体示例：
+  @font-face {
+    font-family: "Your Custom Font";
+    src: url("../fonts/YourFont.woff2") format("woff2"),
+         url("../fonts/YourFont.ttf") format("ttf");
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  然后更新标题字体：
+  --md-title-font: "Your Custom Font", "Zhan Ku", "Noto Sans SC", sans-serif;
+*/
+
+:root {
+  --md-code-font: "Maple Mono";
+  --md-text-font: "Maple Mono", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --md-title-font: "Zhan Ku";
+  
+  /* IDEA 风格代码高亮主题 - 亮色模式（Darcula Light） */
+  --md-code-hl-number-color: #1750eb;
+  --md-code-hl-special-color: #ff8000;
+  --md-code-hl-function-color: #7a7a43;
+  --md-code-hl-constant-color: #871094;
+  --md-code-hl-keyword-color: #0033b3;
+  --md-code-hl-string-color: #067d17;
+  --md-code-hl-name-color: #000000;
+  --md-code-hl-operator-color: #0033b3;
+  --md-code-hl-punctuation-color: #000000;
+  --md-code-hl-comment-color: #8c8c8c;
+  --md-code-hl-generic-color: #1750eb;
+  --md-code-hl-variable-color: #871094;
+  
+  /* 代码块背景和前景色 */
+  --md-code-fg-color: #000000;
+  --md-code-bg-color: #ffffff;
+  --md-code-hl-color: #e2f3ff;
+}
+
+/* 暗色模式下的 IDEA 风格代码高亮（Darcula Dark） */
+[data-md-color-scheme="slate"] {
+  --md-code-hl-number-color: #6897bb;
+  --md-code-hl-special-color: #cc7832;
+  --md-code-hl-function-color: #ffc66d;
+  --md-code-hl-constant-color: #9876aa;
+  --md-code-hl-keyword-color: #cc7832;
+  --md-code-hl-string-color: #6a8759;
+  --md-code-hl-name-color: #a9b7c6;
+  --md-code-hl-operator-color: #cc7832;
+  --md-code-hl-punctuation-color: #a9b7c6;
+  --md-code-hl-comment-color: #808080;
+  --md-code-hl-generic-color: #6897bb;
+  --md-code-hl-variable-color: #9876aa;
+  
+  /* 暗色模式代码块背景和前景色 */
+  --md-code-fg-color: #a9b7c6;
+  --md-code-bg-color: #2b2b2b;
+  --md-code-hl-color: rgba(104, 151, 187, 0.2);
+}
+
+/* 代码块额外样式优化 */
+.highlight pre {
+  line-height: 1.4;
+}
+
+/* 行号样式 */
+.highlight .linenos {
+  color: var(--md-code-hl-comment-color);
+  background-color: transparent;
+} 

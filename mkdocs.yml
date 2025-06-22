@@ -1,0 +1,109 @@
+site_name: 测试自动化知识点总结
+site_description: 软件测试自动化知识点总结
+site_author: 测试自动化学习团队
+site_url: https://xf-test-automation.pages.dev/
+
+# Repository
+repo_name: xf-knowledge/test-automation
+repo_url: https://github.com/xf-knowledge/test-automation
+
+# Copyright
+copyright: Copyright &copy; 2016-2025 <a href="https://www.x-lf.com" target="_blank">筱锋</a> All Rights Reserved.
+
+# Configuration
+theme:
+  logo: ./assets/images/favicon.webp
+  favicon: ./assets/images/favicon.webp
+  name: material
+  language: zh
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: 切换亮色模式
+    - media: "(prefers-color-scheme: light)"
+      primary: teal
+      accent: green
+      toggle:
+        icon: material/brightness-7
+        name: 切换暗色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 依照系统进行模式切换
+  features:
+    - search
+    - search.suggest
+    - search.highlight
+    - search.share
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.footer
+    - navigation.sections
+    - toc.follow
+    - navigation.top
+  
+  icon:
+    logo: material/book-open-variant
+    repo: fontawesome/brands/github
+
+# Plugins
+plugins:
+  - search
+
+# Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/XiaoLFeng
+    - icon: fontawesome/solid/envelope
+      link: mailto:gm@x-lf.cn
+
+# Page tree
+nav:
+  - 概要说明: ./index.md
+  - 第一章:
+    - 自动化测试基础知识: ./chapter1.md
+  - 第二章:
+    - Selenium WebDriver 基本应用: ./chapter2.md
+  - 第三章:
+    - Selenium 高级应用: ./chapter3.md
+  - 第四章:
+    - 单元测试框架: ./chapter4.md
+  - 第五章:
+    - PO模式: ./chapter5.md
+  - 第六章:
+    - 日志系统: ./chapter6.md
+  - 第七章:
+    - 基础练习题: ./chapter7/base.md
+    - 登录页面自动化测试: ./chapter7/login.md
+    - Page Object模式实现: ./chapter7/po.md
+    - 单元测试练习: ./chapter7/unit-test.md
+    - 结合日志测试练习: ./chapter7/normal.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      pygments_lang_class: true
+      auto_title: true
+      linenums: true
+      linenums_style: pymdownx-inline
+  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_javascript:
+  - assets/js/extra.js
+  - assets/js/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
+  - assets/styles/extra.css
