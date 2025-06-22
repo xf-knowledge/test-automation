@@ -5,28 +5,18 @@
 }
 
 @font-face {
-  font-family: "Zhan Ku";
-  src: url("../fonts/ZhanKuHuangYouTi.ttf") format("ttf");
+  font-family: "HappyZcool";
+  src: url("../fonts/Happy.ttf") format("truetype");
 }
 
-/* 
-  添加新字体示例：
-  @font-face {
-    font-family: "Your Custom Font";
-    src: url("../fonts/YourFont.woff2") format("woff2"),
-         url("../fonts/YourFont.ttf") format("ttf");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  然后更新标题字体：
-  --md-title-font: "Your Custom Font", "Zhan Ku", "Noto Sans SC", sans-serif;
-*/
+@font-face {
+  font-family: "HarmonyOS";
+  src: url("../fonts/HarmonyOS.ttf") format("truetype");
+}
 
 :root {
   --md-code-font: "Maple Mono";
   --md-text-font: "Maple Mono", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-  --md-title-font: "Zhan Ku";
   
   /* IDEA 风格代码高亮主题 - 亮色模式（Darcula Light） */
   --md-code-hl-number-color: #1750eb;
@@ -46,6 +36,18 @@
   --md-code-fg-color: #000000;
   --md-code-bg-color: #ffffff;
   --md-code-hl-color: #e2f3ff;
+}
+
+h1, h2, h3, h4, h5, h6, .md-nav__title {
+  font-family: "HappyZcool";
+}
+
+.md-ellipsis {
+  font-family: "HarmonyOS";
+}
+
+article {
+  font-family: "HarmonyOS";
 }
 
 /* 暗色模式下的 IDEA 风格代码高亮（Darcula Dark） */

@@ -6,40 +6,40 @@
 
 本复习指南分为七个主要章节，每个章节都有明确的学习目标和重点内容：
 
-### 📖 [第一章：自动化测试基础知识](chapter1.md)
+### 📖 [自动化测试基础知识](chapter1.md)
 - 自动化测试的定义、优缺点、适用场景
 - 自动化测试的分类方式（按测试目的）
 - 自动化测试的基本流程：11个阶段详解
 - 常用测试工具介绍（Selenium、Appium、JMeter等）
 
-### 🌐 [第二章：Selenium WebDriver 基本应用](chapter2.md)
+### 🌐 [Selenium WebDriver](chapter2.md)
 - 环境搭建：Python + Selenium + 浏览器驱动
 - 元素定位方法：6种定位策略详解
 - 基础元素操作：输入、清除、获取属性等
 - 浏览器控制：页面操作、截图等
 
-### 🚀 [第三章：Selenium 高级应用](chapter3.md)
+### 🚀 [Selenium 高级应用](chapter3.md)
 - Select类操作：下拉框处理
 - 三种等待机制：显式、隐式、强制等待
 - 窗口切换和frame处理
 - Cookie操作管理
 
-### 🧪 [第四章：单元测试框架](chapter4.md)
+### 🧪 [单元测试框架](chapter4.md)
 - unittest框架：核心要素和断言方法
 - pytest框架：简洁语法和插件支持
 - 框架对比和选择建议
 
-### 🏗️ [第五章：PO（Page Object）模式](chapter5.md)
+### 🏗️ [PO（Page Object）模式](chapter5.md)
 - PO模式的三层结构详解
 - 页面对象层、操作层、业务层
 - PO模式的优缺点分析
 
-### 📋 [第六章：日志系统](chapter6.md)
+### 📋 [日志系统](chapter6.md)
 - 日志概念与作用
 - 日志级别和logging模块
 - 四大组件：Logger、Handler、Formatter、Filter
 
-### 💻 [第七章：测试脚本编程实战](chapter7.md)
+### 💻 [测试脚本编程实战](chapter7/base.md)
 - 实战练习题集合
 - 登录页面自动化测试
 - 异常处理和截图
