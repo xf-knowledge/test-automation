@@ -15,7 +15,7 @@
 }
 
 :root {
-  --md-code-font: "Maple Mono";
+  --md-code-font: "Maple Mono", "HarmonyOS";
   --md-text-font: "Maple Mono", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   
   /* IDEA 风格代码高亮主题 - 亮色模式（Darcula Light） */
@@ -42,11 +42,7 @@ h1, h2, h3, h4, h5, h6, .md-nav__title {
   font-family: "HappyZcool";
 }
 
-.md-ellipsis {
-  font-family: "HarmonyOS";
-}
-
-article {
+article, .md-header, .md-ellipsis {
   font-family: "HarmonyOS";
 }
 
