@@ -6,13 +6,13 @@
 
 本复习指南分为七个主要章节，每个章节都有明确的学习目标和重点内容：
 
-### 📖 [自动化测试基础知识](chapter1.md)
+### 📖 [自动化测试基础知识](chapter1/base.md)
 - 自动化测试的定义、优缺点、适用场景
 - 自动化测试的分类方式（按测试目的）
 - 自动化测试的基本流程：11个阶段详解
 - 常用测试工具介绍（Selenium、Appium、JMeter等）
 
-### 🌐 [Selenium WebDriver](chapter2.md)
+### 🌐 [Selenium WebDriver](chapter2/setup.md)
 - 环境搭建：Python + Selenium + 浏览器驱动
 - 元素定位方法：6种定位策略详解
 - 基础元素操作：输入、清除、获取属性等
