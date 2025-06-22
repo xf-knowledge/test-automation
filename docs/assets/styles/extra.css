@@ -1,7 +1,7 @@
 /* 自定义样式 */
 @font-face {
   font-family: "Maple Mono";
-  src: url("../fonts/MapleMono-Regular.woff2") format("woff2");
+  src: url("../fonts/MapleMono-CN.ttf") format("truetype");
 }
 
 @font-face {
@@ -15,8 +15,8 @@
 }
 
 :root {
-  --md-code-font: "Maple Mono", "HarmonyOS";
-  --md-text-font: "Maple Mono", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --md-code-font: "Maple Mono";
+  --md-text-font: "HarmonyOS";
   
   /* IDEA 风格代码高亮主题 - 亮色模式（Darcula Light） */
   --md-code-hl-number-color: #1750eb;
@@ -38,11 +38,11 @@
   --md-code-hl-color: #e2f3ff;
 }
 
-h1, h2, h3, h4, h5, h6, .md-nav__title {
+h1, h2, h3, h4, h5, h6, .md-nav__title, .md-sidebar--secondary {
   font-family: "HappyZcool";
 }
 
-article, .md-header, .md-ellipsis {
+article, .md-header, .md-sidebar--primary {
   font-family: "HarmonyOS";
 }
 
