@@ -93,6 +93,12 @@ nav:
   - 编程实战练习:
     - 编程题实战技能训练: ./chapter7/base.md
     - 登录页面自动化测试综合案例: ./chapter7/login.md
+  - 期末考试模拟试题:
+    - 模拟试题说明: ./chapter8/index.md
+    - 选择题: ./chapter8/choice.md
+    - 判断题: ./chapter8/judge.md
+    - 简答题: ./chapter8/short-answer.md
+    - 编程题: ./chapter8/script.md
 
 markdown_extensions:
   - pymdownx.highlight:
