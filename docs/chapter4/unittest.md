@@ -10,12 +10,12 @@ unittest是Python标准库内置的测试框架，无需额外安装，提供了
 
 ### unittest vs pytest 特性对比
 
-| 特性 | unittest (Python标准库) | pytest (第三方，事实标准) |
-|------|-------------------------|--------------------------|
-| **用例定义** | 语法繁琐。必须创建继承自unittest.TestCase的类，测试方法必须以test_开头 | 语法简洁。简单的函数（以test_开头）或类中的方法即可，无需继承任何基类 |
-| **断言语法** | 使用专用的断言方法，如self.assertEqual(a, b)、self.assertTrue(x)。可读性较差 | 直接使用Python原生的assert关键字，如assert a == b。断言失败时，pytest会提供非常详细的对比信息，调试更方便 |
-| **Fixture (环境管理)** | 通过setUp/tearDown系列方法实现，与测试类紧密耦合，不够灵活 | 极其强大灵活。通过@pytest.fixture装饰器实现，支持依赖注入，可以轻松定义不同作用域（function, class, module, session），实现代码的高度复用 |
-| **插件生态** | 有限。虽然有HTMLTestRunner等，但生态系统相对较小 | 极其丰富。拥有庞大、成熟的插件生态系统，如pytest-html（报告）、pytest-rerunfailures（失败重试）、allure-pytest（高级报告）等，可以轻松扩展框架功能 |
+| 特性                   | unittest (Python标准库)                                                      | pytest (第三方，事实标准)                                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **用例定义**           | 语法繁琐。必须创建继承自unittest.TestCase的类，测试方法必须以test_开头       | 语法简洁。简单的函数（以test_开头）或类中的方法即可，无需继承任何基类                                                                              |
+| **断言语法**           | 使用专用的断言方法，如self.assertEqual(a, b)、self.assertTrue(x)。可读性较差 | 直接使用Python原生的assert关键字，如assert a == b。断言失败时，pytest会提供非常详细的对比信息，调试更方便                                          |
+| **Fixture (环境管理)** | 通过setUp/tearDown系列方法实现，与测试类紧密耦合，不够灵活                   | 极其强大灵活。通过@pytest.fixture装饰器实现，支持依赖注入，可以轻松定义不同作用域（function, class, module, session），实现代码的高度复用          |
+| **插件生态**           | 有限。虽然有HTMLTestRunner等，但生态系统相对较小                             | 极其丰富。拥有庞大、成熟的插件生态系统，如pytest-html（报告）、pytest-rerunfailures（失败重试）、allure-pytest（高级报告）等，可以轻松扩展框架功能 |
 
 ## unittest五大核心组件
 

@@ -14,11 +14,11 @@
 
 ## 三种等待机制深度对比
 
-| 等待类型 | 定义 | 作用域 | 超时后抛出的异常 | 优缺点与使用场景 |
-|---------|------|--------|------------------|------------------|
-| **强制等待** `time.sleep()` | 脚本无条件暂停指定的秒数。代码执行到此会"死等"，不进行任何检查 | 局部 | 不适用 | **反模式（Anti-Pattern）**。严重影响执行效率，使测试变得脆弱。绝对不应在正式脚本中使用，仅限于临时调试，观察页面状态 |
+| 等待类型                         | 定义                                                                                                       | 作用域                                     | 超时后抛出的异常         | 优缺点与使用场景                                                                                                                                                          |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **强制等待** `time.sleep()`      | 脚本无条件暂停指定的秒数。代码执行到此会"死等"，不进行任何检查                                             | 局部                                       | 不适用                   | **反模式（Anti-Pattern）**。严重影响执行效率，使测试变得脆弱。绝对不应在正式脚本中使用，仅限于临时调试，观察页面状态                                                      |
 | **隐式等待** `implicitly_wait()` | 全局设置。在调用find_element时，如果元素未立即找到，WebDriver将在DOM中轮询查找，直到找到元素或达到超时时间 | 全局（一次设置，对整个driver生命周期有效） | `NoSuchElementException` | **优点**: 使用简单，只需一行代码。**缺点**: 不够灵活。它只等待元素"存在于DOM中"，而不能等待更复杂的条件，如元素是否"可见"或"可点击"。如果元素存在但不可交互，测试仍会失败 |
-| **显式等待** `WebDriverWait` | 针对特定元素和特定条件进行等待。在指定时间内，以一定频率轮询检查某个预期条件（Expected Condition）是否成立 | 局部（针对特定代码行） | `TimeoutException` | **最佳实践**。最可靠、最灵活，能应对各种复杂的异步加载场景。可以等待元素可见、可点击、文本出现等多种条件。是编写健壮脚本的首选方案 |
+| **显式等待** `WebDriverWait`     | 针对特定元素和特定条件进行等待。在指定时间内，以一定频率轮询检查某个预期条件（Expected Condition）是否成立 | 局部（针对特定代码行）                     | `TimeoutException`       | **最佳实践**。最可靠、最灵活，能应对各种复杂的异步加载场景。可以等待元素可见、可点击、文本出现等多种条件。是编写健壮脚本的首选方案                                        |
 
 ## 1. 强制等待 (time.sleep) - 不推荐
 
@@ -111,13 +111,13 @@ wait.until(EC.url_contains("dashboard"))
 
 ### 常用expected_conditions条件
 
-| 条件 | 说明 | 示例 |
-|-----|------|------|
-| `presence_of_element_located` | 元素存在于DOM中 | `EC.presence_of_element_located((By.ID, "element"))` |
-| `visibility_of_element_located` | 元素可见 | `EC.visibility_of_element_located((By.ID, "element"))` |
-| `element_to_be_clickable` | 元素可点击 | `EC.element_to_be_clickable((By.ID, "button"))` |
+| 条件                            | 说明             | 示例                                                       |
+| ------------------------------- | ---------------- | ---------------------------------------------------------- |
+| `presence_of_element_located`   | 元素存在于DOM中  | `EC.presence_of_element_located((By.ID, "element"))`       |
+| `visibility_of_element_located` | 元素可见         | `EC.visibility_of_element_located((By.ID, "element"))`     |
+| `element_to_be_clickable`       | 元素可点击       | `EC.element_to_be_clickable((By.ID, "button"))`            |
 | `text_to_be_present_in_element` | 元素包含指定文本 | `EC.text_to_be_present_in_element((By.ID, "msg"), "成功")` |
-| `url_contains` | URL包含指定文本 | `EC.url_contains("dashboard")` |
+| `url_contains`                  | URL包含指定文本  | `EC.url_contains("dashboard")`                             |
 
 ### 特点分析
 
