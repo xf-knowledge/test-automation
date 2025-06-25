@@ -1,12 +1,23 @@
-# unittest框架详解
+# 测试框架对决：unittest详解
 
-> 本节详细介绍Python内置的unittest测试框架，为自动化测试提供结构化的组织方式。
+> unittest是Python标准库内置的测试框架，无需额外安装，提供了完整的测试解决方案。
 
 ## unittest框架简介
 
-unittest是Python标准库内置的测试框架，无需额外安装，提供了完整的测试解决方案。
+unittest是Python标准库内置的测试框架，无需额外安装，提供了完整的测试解决方案。它遵循传统的xUnit模式，语法较为死板和冗长，但作为Python标准库的一部分，具有开箱即用的优势。
 
-## 核心要素（五大组件）
+## 核心特征对比
+
+### unittest vs pytest 特性对比
+
+| 特性 | unittest (Python标准库) | pytest (第三方，事实标准) |
+|------|-------------------------|--------------------------|
+| **用例定义** | 语法繁琐。必须创建继承自unittest.TestCase的类，测试方法必须以test_开头 | 语法简洁。简单的函数（以test_开头）或类中的方法即可，无需继承任何基类 |
+| **断言语法** | 使用专用的断言方法，如self.assertEqual(a, b)、self.assertTrue(x)。可读性较差 | 直接使用Python原生的assert关键字，如assert a == b。断言失败时，pytest会提供非常详细的对比信息，调试更方便 |
+| **Fixture (环境管理)** | 通过setUp/tearDown系列方法实现，与测试类紧密耦合，不够灵活 | 极其强大灵活。通过@pytest.fixture装饰器实现，支持依赖注入，可以轻松定义不同作用域（function, class, module, session），实现代码的高度复用 |
+| **插件生态** | 有限。虽然有HTMLTestRunner等，但生态系统相对较小 | 极其丰富。拥有庞大、成熟的插件生态系统，如pytest-html（报告）、pytest-rerunfailures（失败重试）、allure-pytest（高级报告）等，可以轻松扩展框架功能 |
+
+## unittest五大核心组件
 
 ### 1. TestCase（测试用例）
 
@@ -56,7 +67,7 @@ class LoginTest(unittest.TestCase):
         self.assertTrue(error_msg.is_displayed())
 ```
 
-### TestCase生命周期方法
+#### TestCase生命周期方法
 
 ```python
 class MyTest(unittest.TestCase):
@@ -249,18 +260,54 @@ class WebTestCase(unittest.TestCase):
         self.driver.get(self.base_url)
         self.assertIn("Example", self.driver.title)
     
-    def test_login_success(self):
-        """测试登录成功"""
+    def test_login_functionality(self):
+        """测试登录功能"""
         self.driver.get(f"{self.base_url}/login")
         
-        # 输入用户名密码
-        self.driver.find_element(By.ID, "username").send_keys("testuser")
-        self.driver.find_element(By.ID, "password").send_keys("testpass")
-        self.driver.find_element(By.ID, "login").click()
+        # 输入凭据
+        username = self.driver.find_element(By.ID, "username")
+        password = self.driver.find_element(By.ID, "password")
         
-        # 断言登录成功
+        username.send_keys("testuser")
+        password.send_keys("testpass")
+        
+        # 提交表单
+        login_form = self.driver.find_element(By.ID, "login-form")
+        login_form.submit()
+        
+        # 验证登录结果
         self.assertIn("dashboard", self.driver.current_url)
 
 if __name__ == '__main__':
+    # 创建测试套件
+    suite = unittest.TestLoader().loadTestsFromTestCase(WebTestCase)
+    
     # 运行测试
-    unittest.main(verbosity=2) 
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    
+    # 输出测试结果
+    print(f"\n测试结果：")
+    print(f"执行测试数：{result.testsRun}")
+    print(f"成功：{result.testsRun - len(result.failures) - len(result.errors)}")
+    print(f"失败：{len(result.failures)}")
+    print(f"错误：{len(result.errors)}")
+```
+
+## unittest的优缺点总结
+
+### 优点
+- **内置标准库**：无需安装，开箱即用
+- **结构化设计**：提供完整的测试组织框架
+- **企业环境友好**：许多企业偏好使用标准库
+- **稳定可靠**：作为Python标准库，维护良好
+
+### 缺点
+- **语法冗长**：需要继承类，编写更多样板代码
+- **断言不够直观**：专用断言方法可读性差
+- **灵活性有限**：fixture系统不如pytest强大
+- **生态系统小**：可用插件和扩展相对较少
+
+## 决策考量
+
+unittest作为Python标准库，优点是无需安装，开箱即用。但其设计遵循了传统的xUnit模式，语法较为死板和冗长。在现代测试框架的对比中，pytest通过简洁的语法、强大的Fixture系统和丰富的插件生态，极大地提升了开发效率和测试代码的可维护性。 

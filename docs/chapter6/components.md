@@ -1,91 +1,94 @@
-# logging模块四大组件
+# 四大核心组件：构建专业日志系统
 
-> 本节详细介绍Python logging模块的四个核心组件：Logger、Handler、Formatter和Filter，以及它们之间的协作关系。
+> **期末考试重点**：Python logging模块的四大核心组件（Logger、Handler、Formatter、Filter）是自动化测试框架的重要基础，必须深度理解它们的作用机制和协作关系。
 
-## 四大组件概览
-
-Python的logging模块基于四个核心组件构建，它们协同工作提供完整的日志功能：
+## 四大组件架构图
 
 ```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Logger    │ ── │   Handler   │ ── │  Formatter  │    │   Filter    │
-│   记录器     │    │   处理器     │    │   格式器     │    │   过滤器     │
-│(决定记录什么) │    │(决定输出哪里) │    │(决定输出格式) │    │(决定过滤条件) │
-└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+测试代码 → Logger(记录器) → Handler(处理器) → Formatter(格式器) → 输出目标
+           ↓
+       Filter(过滤器)
+       ↓
+    条件过滤处理
 ```
 
-## 1. Logger（记录器）
+### 组件协作流程
+1. **Logger**：接收日志请求，判断级别是否满足条件
+2. **Filter**：对日志记录进行条件过滤（可选）
+3. **Handler**：决定日志的输出目标（控制台、文件等）
+4. **Formatter**：格式化日志消息的显示样式
 
-### 作用与功能
-- **接口提供**：为应用程序代码提供直接使用的日志接口
-- **级别控制**：决定哪些级别的日志记录会被处理
-- **层次管理**：支持层次结构和继承关系
-- **Handler管理**：管理多个处理器，决定日志的输出目标
+## 1. Logger（记录器）- 日志系统的核心入口
 
-### 基本使用
+### 核心职责
+- **接口提供者**：为应用程序提供日志记录的直接接口
+- **级别控制者**：决定哪些级别的日志会被处理
+- **层次管理者**：支持父子继承关系的层次化管理
+- **Handler协调者**：管理和协调多个处理器
+
+### 基础应用
 ```python
 import logging
 
 # 创建记录器
-logger = logging.getLogger('test_automation')
+logger = logging.getLogger('automation_test')
 logger.setLevel(logging.DEBUG)
 
-# 使用记录器记录不同级别的日志
-logger.debug("这是调试信息")
-logger.info("这是普通信息")
-logger.warning("这是警告信息")
-logger.error("这是错误信息")
-logger.critical("这是严重错误信息")
+# 记录不同级别的日志
+logger.debug("详细调试信息")
+logger.info("关键流程信息")
+logger.warning("潜在问题警告")
+logger.error("执行错误信息")
+logger.critical("系统严重错误")
 ```
 
-### 层次结构
+### 层次化管理（考试重点）
 ```python
-# 创建父记录器
-parent_logger = logging.getLogger('automation')
+# 父记录器
+parent_logger = logging.getLogger('test_framework')
 parent_logger.setLevel(logging.INFO)
 
-# 创建子记录器（自动继承父记录器配置）
-child_logger = logging.getLogger('automation.selenium')
-grandchild_logger = logging.getLogger('automation.selenium.webdriver')
+# 子记录器（自动继承父记录器的配置）
+selenium_logger = logging.getLogger('test_framework.selenium')
+api_logger = logging.getLogger('test_framework.api')
+database_logger = logging.getLogger('test_framework.database')
 
-# 层次关系：automation ← automation.selenium ← automation.selenium.webdriver
+# 层次关系：test_framework ← test_framework.selenium ← test_framework.api
 ```
 
-### 记录器配置
+### 记录器管理最佳实践
 ```python
-class LoggerManager:
-    """日志记录器管理类"""
+class LoggerFactory:
+    """记录器工厂类 - 统一管理日志记录器"""
     
-    @staticmethod
-    def get_logger(name, level=logging.INFO):
-        """获取配置好的记录器"""
-        logger = logging.getLogger(name)
-        logger.setLevel(level)
-        
-        # 避免重复添加处理器
-        if not logger.handlers:
-            # 这里会在后续添加处理器
-            pass
-            
-        return logger
+    _loggers = {}
     
-    @staticmethod
-    def get_test_logger(test_name):
-        """获取测试专用记录器"""
-        return LoggerManager.get_logger(f'test.{test_name}', logging.DEBUG)
+    @classmethod
+    def get_logger(cls, name, level=logging.INFO):
+        """获取或创建记录器"""
+        if name not in cls._loggers:
+            logger = logging.getLogger(name)
+            logger.setLevel(level)
+            cls._loggers[name] = logger
+        return cls._loggers[name]
+    
+    @classmethod
+    def get_test_logger(cls, test_module):
+        """获取测试模块专用记录器"""
+        return cls.get_logger(f'test.{test_module}')
 
 # 使用示例
-login_logger = LoggerManager.get_test_logger('login')
-search_logger = LoggerManager.get_test_logger('search')
+login_logger = LoggerFactory.get_test_logger('login')
+search_logger = LoggerFactory.get_test_logger('search')
 ```
 
-## 2. Handler（处理器）
+## 2. Handler（处理器）- 输出目标的决策者
 
-### 作用与功能
-- **输出控制**：决定日志记录的输出位置（控制台、文件、网络等）
-- **级别过滤**：每个处理器可以设置自己的日志级别
-- **格式应用**：应用格式器来格式化日志消息
-- **多目标支持**：同一个记录器可以关联多个处理器
+### 核心职责
+- **输出路由**：决定日志记录的输出目标和方式
+- **级别过滤**：每个处理器可独立设置日志级别
+- **格式应用**：应用格式器对日志进行格式化
+- **并发支持**：支持多个处理器同时工作
 
 ### 常用处理器类型
 
@@ -94,307 +97,227 @@ search_logger = LoggerManager.get_test_logger('search')
 import logging
 import sys
 
-# 创建控制台处理器
+# 标准输出处理器
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.INFO)
 
-# 也可以输出到标准错误流
+# 错误输出处理器
 error_handler = logging.StreamHandler(sys.stderr)
 error_handler.setLevel(logging.ERROR)
 
-# 应用到记录器
 logger = logging.getLogger('test')
 logger.addHandler(console_handler)
 logger.addHandler(error_handler)
 ```
 
-#### FileHandler - 文件输出
+#### FileHandler - 基础文件输出
 ```python
 import logging
 
-# 创建文件处理器
+# 基础文件处理器
 file_handler = logging.FileHandler('test.log', encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 
 # 追加模式文件处理器
 append_handler = logging.FileHandler('test.log', mode='a', encoding='utf-8')
 
-# 应用到记录器
 logger = logging.getLogger('test')
 logger.addHandler(file_handler)
 ```
 
-#### RotatingFileHandler - 文件大小轮转
+#### RotatingFileHandler - 大小轮转
 ```python
-import logging
 from logging.handlers import RotatingFileHandler
 
-# 创建轮转文件处理器
+# 按文件大小轮转
 rotating_handler = RotatingFileHandler(
-    'test.log',                # 文件名
-    maxBytes=1024*1024*5,      # 最大5MB
-    backupCount=3,             # 保留3个备份文件
+    'test.log',                    # 文件名
+    maxBytes=1024*1024*5,          # 最大5MB
+    backupCount=3,                 # 保留3个备份
     encoding='utf-8'
 )
 rotating_handler.setLevel(logging.DEBUG)
 
-logger = logging.getLogger('test')
-logger.addHandler(rotating_handler)
-
-# 文件轮转结果：test.log, test.log.1, test.log.2, test.log.3
+# 文件轮转效果：test.log → test.log.1 → test.log.2 → test.log.3
 ```
 
 #### TimedRotatingFileHandler - 时间轮转
 ```python
-import logging
 from logging.handlers import TimedRotatingFileHandler
 
-# 创建按时间轮转的文件处理器
+# 按时间轮转
 timed_handler = TimedRotatingFileHandler(
     'test.log',
-    when='D',           # 按天轮转 (H=小时, D=天, W=周, M=月)
-    interval=1,         # 每1天
-    backupCount=7,      # 保留7天的日志
+    when='D',              # 轮转周期：H(小时)、D(天)、W(周)、M(月)
+    interval=1,            # 每1天轮转
+    backupCount=7,         # 保留7天的历史日志
     encoding='utf-8'
 )
 timed_handler.setLevel(logging.DEBUG)
-
-logger = logging.getLogger('test')
-logger.addHandler(timed_handler)
 ```
 
-### 多处理器配置
+### 多处理器协作策略
 ```python
-import logging
-from logging.handlers import RotatingFileHandler
-
-def setup_multi_handler_logger():
-    """配置多处理器日志系统"""
+def setup_multi_handler_system():
+    """配置多处理器协作系统"""
     logger = logging.getLogger('automation')
     logger.setLevel(logging.DEBUG)
-    
-    # 清除现有处理器
     logger.handlers.clear()
     
-    # 控制台处理器 - 只显示INFO及以上
+    # 1. 控制台处理器 - 显示重要信息
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.INFO)
     
-    # 详细日志文件处理器 - 记录所有级别
-    debug_file_handler = RotatingFileHandler(
-        'debug.log',
-        maxBytes=1024*1024*10,  # 10MB
-        backupCount=5,
-        encoding='utf-8'
+    # 2. 调试文件处理器 - 记录所有详细信息
+    debug_handler = RotatingFileHandler(
+        'debug.log', maxBytes=10*1024*1024, backupCount=5, encoding='utf-8'
     )
-    debug_file_handler.setLevel(logging.DEBUG)
+    debug_handler.setLevel(logging.DEBUG)
     
-    # 错误日志文件处理器 - 只记录错误
-    error_file_handler = RotatingFileHandler(
-        'error.log',
-        maxBytes=1024*1024*5,   # 5MB
-        backupCount=3,
-        encoding='utf-8'
+    # 3. 错误文件处理器 - 专门记录错误
+    error_handler = RotatingFileHandler(
+        'error.log', maxBytes=5*1024*1024, backupCount=3, encoding='utf-8'
     )
-    error_file_handler.setLevel(logging.ERROR)
+    error_handler.setLevel(logging.ERROR)
     
-    # 添加所有处理器
+    # 4. 添加所有处理器
     logger.addHandler(console_handler)
-    logger.addHandler(debug_file_handler)
-    logger.addHandler(error_file_handler)
+    logger.addHandler(debug_handler)
+    logger.addHandler(error_handler)
     
     return logger
-
-# 使用示例
-logger = setup_multi_handler_logger()
-logger.debug("这条消息只会写入debug.log")
-logger.info("这条消息会显示在控制台和debug.log")
-logger.error("这条消息会出现在所有三个地方")
 ```
 
-## 3. Formatter（格式器）
+## 3. Formatter（格式器）- 输出样式的美化师
 
-### 作用与功能
-- **格式定义**：决定日志记录的输出格式
-- **信息提取**：从日志记录中提取所需信息
-- **样式统一**：确保日志输出的一致性
-- **可读性提升**：使日志更易于阅读和分析
+### 核心职责
+- **信息组织**：决定日志消息的显示格式和内容布局
+- **时间格式化**：控制时间戳的显示样式
+- **字段选择**：选择要显示的日志字段信息
+- **可读性优化**：提高日志的可读性和专业性
 
-### 格式化字符串
+### 格式化字段说明（考试重点）
+| 字段名 | 含义 | 示例 |
+|--------|------|------|
+| %(asctime)s | 时间戳 | 2024-01-15 14:30:25 |
+| %(levelname)s | 日志级别 | INFO、ERROR |
+| %(name)s | 记录器名称 | test.login |
+| %(filename)s | 文件名 | test_login.py |
+| %(lineno)d | 行号 | 25 |
+| %(funcName)s | 函数名 | test_valid_login |
+| %(message)s | 日志消息 | 登录测试执行成功 |
+| %(pathname)s | 文件完整路径 | /tests/test_login.py |
+| %(module)s | 模块名 | test_login |
 
-#### 常用格式化字段
-```python
-# 常用的日志格式化字段
-format_fields = {
-    '%(asctime)s':     '时间戳',
-    '%(name)s':        '记录器名称',
-    '%(levelname)s':   '日志级别名称',
-    '%(levelno)s':     '日志级别数值',
-    '%(filename)s':    '文件名',
-    '%(lineno)d':      '行号',
-    '%(funcName)s':    '函数名',
-    '%(module)s':      '模块名',
-    '%(message)s':     '日志消息',
-    '%(pathname)s':    '完整路径名',
-    '%(process)d':     '进程ID',
-    '%(thread)d':      '线程ID',
-    '%(threadName)s':  '线程名称'
-}
-```
-
-#### 基础格式器
+### 实用格式器配置
 ```python
 import logging
 
-# 简单格式
-simple_formatter = logging.Formatter('%(levelname)s - %(message)s')
+# 1. 简洁格式器 - 适合控制台
+simple_formatter = logging.Formatter(
+    '%(levelname)s - %(message)s'
+)
 
-# 标准格式
+# 2. 标准格式器 - 适合一般文件记录
 standard_formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-# 详细格式
-detailed_formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s() - %(message)s'
-)
-
-# 自定义时间格式
-custom_time_formatter = logging.Formatter(
     '%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+# 3. 详细格式器 - 适合调试文件
+detailed_formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s() - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+# 4. 错误格式器 - 包含异常信息
+error_formatter = logging.Formatter(
+    '%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s\n%(exc_info)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 ```
 
 ### 自定义格式器
 ```python
-import logging
-from datetime import datetime
-
 class CustomFormatter(logging.Formatter):
-    """自定义格式器"""
-    
-    def __init__(self):
-        super().__init__()
-        
-        # 定义不同级别的颜色（ANSI颜色代码）
-        self.COLORS = {
-            'DEBUG': '\033[36m',    # 青色
-            'INFO': '\033[32m',     # 绿色
-            'WARNING': '\033[33m',  # 黄色
-            'ERROR': '\033[31m',    # 红色
-            'CRITICAL': '\033[35m', # 紫色
-        }
-        self.RESET = '\033[0m'      # 重置颜色
-        
-        # 不同级别的格式
-        self.FORMATS = {
-            logging.DEBUG: f"{self.COLORS['DEBUG']}[DEBUG] %(asctime)s - %(filename)s:%(lineno)d - %(message)s{self.RESET}",
-            logging.INFO: f"{self.COLORS['INFO']}[INFO] %(asctime)s - %(message)s{self.RESET}",
-            logging.WARNING: f"{self.COLORS['WARNING']}[WARNING] %(asctime)s - %(filename)s:%(lineno)d - %(message)s{self.RESET}",
-            logging.ERROR: f"{self.COLORS['ERROR']}[ERROR] %(asctime)s - %(filename)s:%(lineno)d - %(message)s{self.RESET}",
-            logging.CRITICAL: f"{self.COLORS['CRITICAL']}[CRITICAL] %(asctime)s - %(filename)s:%(lineno)d - %(message)s{self.RESET}",
-        }
+    """自定义格式器 - 添加特殊功能"""
     
     def format(self, record):
-        """格式化日志记录"""
-        log_fmt = self.FORMATS.get(record.levelno)
-        formatter = logging.Formatter(log_fmt, datefmt='%H:%M:%S')
-        return formatter.format(record)
+        # 添加自定义字段
+        record.test_case = getattr(record, 'test_case', 'unknown')
+        record.test_step = getattr(record, 'test_step', 'N/A')
+        
+        # 根据级别调整格式
+        if record.levelno >= logging.ERROR:
+            # 错误级别添加更多上下文信息
+            self._style._fmt = '%(asctime)s - [%(test_case)s] - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+        else:
+            # 普通级别使用简洁格式
+            self._style._fmt = '%(asctime)s - %(levelname)s - %(message)s'
+        
+        return super().format(record)
 
 # 使用自定义格式器
-logger = logging.getLogger('test')
+custom_formatter = CustomFormatter()
 handler = logging.StreamHandler()
-handler.setFormatter(CustomFormatter())
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-# 测试不同级别的日志输出
-logger.debug("这是调试信息")
-logger.info("这是普通信息")
-logger.warning("这是警告信息")
-logger.error("这是错误信息")
+handler.setFormatter(custom_formatter)
 ```
 
-### 测试专用格式器
-```python
-class TestFormatter(logging.Formatter):
-    """测试专用格式器"""
-    
-    def __init__(self):
-        super().__init__()
-        
-    def format(self, record):
-        """为测试日志添加特殊标记"""
-        
-        # 添加测试用例标识
-        if hasattr(record, 'test_case'):
-            test_case = record.test_case
-        else:
-            test_case = "Unknown"
-        
-        # 添加步骤编号
-        if hasattr(record, 'step_no'):
-            step_no = f"Step {record.step_no}"
-        else:
-            step_no = ""
-        
-        # 格式化时间
-        formatted_time = datetime.now().strftime('%H:%M:%S.%f')[:-3]
-        
-        # 构建格式化消息
-        formatted_msg = f"[{formatted_time}] [{record.levelname}] [{test_case}] {step_no} - {record.getMessage()}"
-        
-        return formatted_msg
+## 4. Filter（过滤器）- 精准控制的守门员
 
-# 使用测试格式器
-class TestLogger:
-    def __init__(self, test_case_name):
-        self.logger = logging.getLogger(f'test.{test_case_name}')
-        self.test_case_name = test_case_name
-        self.step_counter = 0
-        
-        if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            handler.setFormatter(TestFormatter())
-            self.logger.addHandler(handler)
-            self.logger.setLevel(logging.DEBUG)
-    
-    def step(self, message, level=logging.INFO):
-        """记录测试步骤"""
-        self.step_counter += 1
-        
-        # 创建带额外信息的日志记录
-        record = self.logger.makeRecord(
-            self.logger.name, level, __file__, 0, message, (), None
-        )
-        record.test_case = self.test_case_name
-        record.step_no = self.step_counter
-        
-        self.logger.handle(record)
+### 核心职责
+- **条件过滤**：基于自定义条件过滤日志记录
+- **动态控制**：运行时动态调整过滤策略
+- **精细管理**：比日志级别更精细的控制机制
+- **特殊场景**：处理复杂的日志过滤需求
 
-# 使用示例
-test_logger = TestLogger("login_test")
-test_logger.step("打开登录页面")
-test_logger.step("输入用户名")
-test_logger.step("输入密码")
-test_logger.step("点击登录按钮")
-```
-
-## 4. Filter（过滤器）
-
-### 作用与功能
-- **精细控制**：提供比日志级别更精细的控制机制
-- **条件过滤**：基于复杂条件过滤日志记录
-- **信息保护**：过滤敏感信息
-- **模块控制**：控制特定模块的日志输出
-
-### 基础过滤器
+### 基础过滤器应用
 ```python
 import logging
 
+class TestCaseFilter(logging.Filter):
+    """测试用例过滤器 - 只允许特定测试用例的日志"""
+    
+    def __init__(self, allowed_test_cases):
+        super().__init__()
+        self.allowed_test_cases = allowed_test_cases
+    
+    def filter(self, record):
+        # 只允许指定测试用例的日志通过
+        test_case = getattr(record, 'test_case', None)
+        return test_case in self.allowed_test_cases
+
+# 使用过滤器
+test_filter = TestCaseFilter(['login_test', 'search_test'])
+handler = logging.StreamHandler()
+handler.addFilter(test_filter)
+
+# 记录日志时添加测试用例信息
+logger = logging.getLogger('test')
+logger.addHandler(handler)
+
+# 创建日志记录时添加额外信息
+record = logging.LogRecord(
+    name='test', level=logging.INFO, pathname='', lineno=0,
+    msg='测试执行成功', args=(), exc_info=None
+)
+record.test_case = 'login_test'  # 添加自定义字段
+logger.handle(record)
+```
+
+### 高级过滤器示例
+```python
+class PerformanceFilter(logging.Filter):
+    """性能过滤器 - 过滤执行时间相关的日志"""
+    
+    def filter(self, record):
+        # 只允许包含性能关键词的日志
+        performance_keywords = ['timeout', 'slow', 'performance', 'duration']
+        message = record.getMessage().lower()
+        return any(keyword in message for keyword in performance_keywords)
+
 class LevelRangeFilter(logging.Filter):
-    """级别范围过滤器"""
+    """级别范围过滤器 - 只允许特定范围的日志级别"""
     
     def __init__(self, min_level, max_level):
         super().__init__()
@@ -402,204 +325,73 @@ class LevelRangeFilter(logging.Filter):
         self.max_level = max_level
     
     def filter(self, record):
-        """只允许指定级别范围内的日志通过"""
         return self.min_level <= record.levelno <= self.max_level
 
-# 使用级别范围过滤器
-logger = logging.getLogger('test')
-handler = logging.StreamHandler()
-
-# 只记录INFO到WARNING级别的日志
-range_filter = LevelRangeFilter(logging.INFO, logging.WARNING)
+# 应用示例：只记录WARNING到ERROR级别的日志
+range_filter = LevelRangeFilter(logging.WARNING, logging.ERROR)
 handler.addFilter(range_filter)
-
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-# 测试过滤效果
-logger.debug("不会显示")      # 级别太低
-logger.info("会显示")        # 在范围内
-logger.warning("会显示")     # 在范围内
-logger.error("不会显示")     # 级别太高
 ```
 
-### 模块过滤器
-```python
-class ModuleFilter(logging.Filter):
-    """模块过滤器"""
-    
-    def __init__(self, allowed_modules):
-        super().__init__()
-        self.allowed_modules = allowed_modules
-    
-    def filter(self, record):
-        """只允许指定模块的日志通过"""
-        return any(record.name.startswith(module) for module in self.allowed_modules)
+## 四大组件综合应用实例
 
-# 使用模块过滤器
-module_filter = ModuleFilter(['test.login', 'test.search'])
-handler = logging.StreamHandler()
-handler.addFilter(module_filter)
-
-# 只有来自test.login和test.search模块的日志会被输出
-login_logger = logging.getLogger('test.login')
-search_logger = logging.getLogger('test.search')
-payment_logger = logging.getLogger('test.payment')
-
-login_logger.addHandler(handler)
-search_logger.addHandler(handler)
-payment_logger.addHandler(handler)
-
-login_logger.info("登录日志会显示")
-search_logger.info("搜索日志会显示")
-payment_logger.info("支付日志不会显示")  # 被过滤掉
-```
-
-### 敏感信息过滤器
-```python
-import re
-
-class SensitiveDataFilter(logging.Filter):
-    """敏感数据过滤器"""
-    
-    def __init__(self):
-        super().__init__()
-        # 定义敏感信息的正则表达式
-        self.patterns = [
-            (re.compile(r'password["\']?\s*[:=]\s*["\']?([^"\s,}]+)', re.IGNORECASE), 'password=***'),
-            (re.compile(r'token["\']?\s*[:=]\s*["\']?([^"\s,}]+)', re.IGNORECASE), 'token=***'),
-            (re.compile(r'\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b'), '****-****-****-****'),  # 信用卡号
-            (re.compile(r'\b\d{11}\b'), '***********'),  # 手机号
-        ]
-    
-    def filter(self, record):
-        """过滤敏感信息"""
-        if hasattr(record, 'msg'):
-            message = str(record.msg)
-            for pattern, replacement in self.patterns:
-                message = pattern.sub(replacement, message)
-            record.msg = message
-        return True
-
-# 使用敏感信息过滤器
-logger = logging.getLogger('security')
-handler = logging.StreamHandler()
-handler.addFilter(SensitiveDataFilter())
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-# 测试敏感信息过滤
-logger.info("用户登录: username=admin, password=secret123")
-logger.info("API调用: token=abc123def456")
-logger.info("支付信息: card=1234 5678 9012 3456")
-```
-
-### 性能过滤器
-```python
-import time
-
-class PerformanceFilter(logging.Filter):
-    """性能监控过滤器"""
-    
-    def __init__(self, slow_threshold=1.0):
-        super().__init__()
-        self.slow_threshold = slow_threshold
-        self.start_times = {}
-    
-    def filter(self, record):
-        """标记慢操作"""
-        message = record.getMessage()
-        
-        # 检测操作开始
-        if message.startswith("开始"):
-            operation_id = id(record)
-            self.start_times[operation_id] = time.time()
-        
-        # 检测操作结束
-        elif message.startswith("完成"):
-            operation_id = id(record)
-            if operation_id in self.start_times:
-                duration = time.time() - self.start_times[operation_id]
-                if duration > self.slow_threshold:
-                    record.msg = f"[慢操作 {duration:.2f}s] {record.msg}"
-                del self.start_times[operation_id]
-        
-        return True
-
-# 使用性能过滤器
-logger = logging.getLogger('performance')
-handler = logging.StreamHandler()
-handler.addFilter(PerformanceFilter(slow_threshold=0.5))
-logger.addHandler(handler)
-logger.setLevel(logging.INFO)
-
-# 模拟操作
-logger.info("开始登录操作")
-time.sleep(0.8)  # 模拟慢操作
-logger.info("完成登录操作")
-```
-
-## 组件协作示例
-
-### 完整的四组件配置
 ```python
 import logging
 from logging.handlers import RotatingFileHandler
+import sys
 
-def setup_complete_logging():
-    """配置完整的四组件日志系统"""
+def setup_comprehensive_logging():
+    """配置完整的四大组件协作系统"""
     
     # 1. 创建Logger
-    logger = logging.getLogger('automation')
+    logger = logging.getLogger('test_automation')
     logger.setLevel(logging.DEBUG)
     logger.handlers.clear()
     
-    # 2. 创建Handler
-    console_handler = logging.StreamHandler()
-    file_handler = RotatingFileHandler(
-        'automation.log',
-        maxBytes=1024*1024*5,
-        backupCount=3,
-        encoding='utf-8'
-    )
-    
-    # 3. 创建Formatter
+    # 2. 创建Formatter
     console_formatter = logging.Formatter(
         '%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%H:%M:%S'
     )
+    
     file_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s() - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
     
-    # 4. 创建Filter
-    class TestCaseFilter(logging.Filter):
-        def filter(self, record):
-            return 'test_' in record.funcName if hasattr(record, 'funcName') else True
-    
-    test_filter = TestCaseFilter()
-    
-    # 组装配置
+    # 3. 创建Handler
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(console_formatter)
-    console_handler.addFilter(test_filter)
     
+    file_handler = RotatingFileHandler(
+        'automation.log', maxBytes=5*1024*1024, backupCount=3, encoding='utf-8'
+    )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
     
+    # 4. 创建Filter
+    class TestFilter(logging.Filter):
+        def filter(self, record):
+            # 过滤掉第三方库的DEBUG信息
+            if record.levelno == logging.DEBUG and not record.name.startswith('test'):
+                return False
+            return True
+    
+    test_filter = TestFilter()
+    file_handler.addFilter(test_filter)
+    
+    # 5. 组装系统
     logger.addHandler(console_handler)
     logger.addHandler(file_handler)
     
     return logger
 
-# 使用完整配置
-logger = setup_complete_logging()
+# 使用综合日志系统
+logger = setup_comprehensive_logging()
+logger.info("日志系统初始化完成")
+logger.debug("这是调试信息")
+logger.warning("这是警告信息")
+logger.error("这是错误信息")
+```
 
-def test_login():
-    logger.debug("开始测试登录功能")
-    logger.info("输入用户凭据")
-    logger.warning("响应时间较长")
-    logger.error("登录失败")
-    logger.critical("系统异常")
-
-test_login() 
+这四大组件的精密协作，构建了功能强大、灵活可控的日志系统，是自动化测试框架不可或缺的重要基础设施。

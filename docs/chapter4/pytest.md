@@ -1,10 +1,10 @@
 # pytest框架详解
 
-> 本节详细介绍pytest测试框架，以简洁的语法和丰富的插件生态系统提供强大的测试能力。
+> pytest是一个功能强大的第三方测试框架，以简洁的语法和丰富的插件生态系统著称，已成为Python自动化测试的首选框架。
 
 ## pytest框架简介
 
-pytest是一个功能强大的第三方测试框架，以简洁的语法和丰富的插件生态系统著称。
+pytest是一个功能强大的第三方测试框架，以简洁的语法和丰富的插件生态系统著称。它代表了更现代的测试框架设计理念，通过简洁的语法、强大的Fixture系统和丰富的插件生态，极大地提升了开发效率和测试代码的可维护性。在当前业界，pytest已经成为Python自动化测试的首选框架。
 
 ```bash
 # 安装pytest
@@ -34,7 +34,7 @@ def test_list_length():
     assert len(my_list) == 5
 ```
 
-### 2. 常用断言
+### 2. 强大的断言
 
 pytest使用Python的原生`assert`语句，更加直观：
 
@@ -105,7 +105,33 @@ class TestOrder:
         assert True
 ```
 
-### 2. pytest-rerunfailures（失败重试）
+### 2. 跳过测试
+
+在管理大型测试套件时，能够跳过某些测试非常有用：
+
+```python
+import pytest
+
+@pytest.mark.skip(reason="功能尚未实现")
+def test_future_feature():
+    """这个测试会被跳过"""
+    pass
+
+@pytest.mark.skipif(condition=True, reason="条件不满足")
+def test_conditional_skip():
+    """根据条件跳过测试"""
+    pass
+
+# 根据操作系统版本或环境配置来决定是否执行某个测试
+import sys
+
+@pytest.mark.skipif(sys.version_info < (3, 8), reason="需要 Python 3.8+")
+def test_python38_feature():
+    """只在 Python 3.8+ 上运行"""
+    assert True
+```
+
+### 3. pytest-rerunfailures（失败重试）
 
 ```bash
 # 安装插件
@@ -134,7 +160,7 @@ class TestRetry:
 pytest --reruns 2 --reruns-delay 1 test_file.py
 ```
 
-### 3. pytest-html（生成报告）
+### 4. pytest-html（生成报告）
 
 ```bash
 # 安装插件
@@ -248,45 +274,148 @@ def test_critical_feature():
     assert True
 
 @pytest.mark.regression
-def test_existing_feature():
+def test_regression_feature():
     """回归测试"""
     assert True
 
-@pytest.mark.skip(reason="功能尚未实现")
-def test_future_feature():
-    """跳过的测试"""
-    assert True
-
-@pytest.mark.skipif(condition=True, reason="条件跳过")
-def test_conditional():
-    """条件跳过的测试"""
+@pytest.mark.slow
+def test_time_consuming():
+    """耗时测试"""
+    import time
+    time.sleep(2)
     assert True
 ```
 
 ```bash
-# 运行特定标记的测试
+# 只运行特定标记的测试
 pytest -m smoke          # 只运行冒烟测试
+pytest -m "not slow"     # 跳过慢测试
 pytest -m "smoke or regression"  # 运行冒烟或回归测试
 ```
 
-## pytest配置文件
+## 综合实战示例
 
-### pytest.ini配置
+```python
+# test_comprehensive.py
+import pytest
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-```ini
-[tool:pytest]
-# 测试发现规则
-testpaths = tests
-python_files = test_*.py *_test.py
-python_classes = Test*
-python_functions = test_*
+class TestWebApplication:
+    
+    @pytest.fixture(scope="class")
+    def driver(self):
+        """类级别的浏览器夹具"""
+        driver = webdriver.Chrome()
+        driver.implicitly_wait(10)
+        yield driver
+        driver.quit()
+    
+    @pytest.fixture
+    def login_page(self, driver):
+        """登录页面夹具"""
+        driver.get("https://example.com/login")
+        return driver
+    
+    @pytest.mark.smoke
+    @pytest.mark.run(order=1)
+    def test_page_title(self, login_page):
+        """测试页面标题"""
+        assert "Login" in login_page.title
+    
+    @pytest.mark.parametrize("username,password,expected_result", [
+        ("admin", "admin123", "success"),
+        ("user", "user123", "success"),
+        ("invalid", "wrong", "failure")
+    ])
+    def test_login_scenarios(self, login_page, username, password, expected_result):
+        """参数化登录测试"""
+        # 清空并输入用户名
+        username_field = login_page.find_element(By.ID, "username")
+        username_field.clear()
+        username_field.send_keys(username)
+        
+        # 清空并输入密码
+        password_field = login_page.find_element(By.ID, "password")
+        password_field.clear()
+        password_field.send_keys(password)
+        
+        # 点击登录按钮
+        login_button = login_page.find_element(By.ID, "login")
+        login_button.click()
+        
+        # 验证结果
+        if expected_result == "success":
+            wait = WebDriverWait(login_page, 10)
+            wait.until(EC.url_contains("dashboard"))
+            assert "dashboard" in login_page.current_url
+        else:
+            error_element = login_page.find_element(By.CLASS_NAME, "error")
+            assert error_element.is_displayed()
+    
+    @pytest.mark.regression
+    @pytest.mark.flaky(reruns=2)
+    def test_logout_functionality(self, driver):
+        """测试登出功能"""
+        # 先登录
+        driver.get("https://example.com/login")
+        driver.find_element(By.ID, "username").send_keys("admin")
+        driver.find_element(By.ID, "password").send_keys("admin123")
+        driver.find_element(By.ID, "login").click()
+        
+        # 等待登录完成
+        wait = WebDriverWait(driver, 10)
+        wait.until(EC.url_contains("dashboard"))
+        
+        # 执行登出
+        logout_button = driver.find_element(By.ID, "logout")
+        logout_button.click()
+        
+        # 验证返回登录页面
+        wait.until(EC.url_contains("login"))
+        assert "login" in driver.current_url
+```
 
-# 命令行选项
-addopts = -v --tb=short --strict-markers
+## 运行pytest测试
 
-# 自定义标记
-markers =
-    smoke: 冒烟测试
-    regression: 回归测试
-    slow: 标记运行缓慢的测试
-``` 
+```bash
+# 基本运行
+pytest test_file.py
+
+# 详细输出
+pytest -v test_file.py
+
+# 生成HTML报告
+pytest --html=report.html --self-contained-html
+
+# 运行特定标记的测试
+pytest -m smoke
+
+# 失败重试
+pytest --reruns 3 --reruns-delay 1
+
+# 并行执行（需要安装pytest-xdist）
+pip install pytest-xdist
+pytest -n 4  # 使用4个进程并行执行
+```
+
+## pytest vs unittest 总结
+
+在当前业界，pytest已经成为Python自动化测试的首选框架，主要原因：
+
+### pytest的优势
+- **语法简洁**：无需继承类，函数即可成为测试
+- **断言直观**：使用原生assert，失败时提供详细信息
+- **插件丰富**：庞大的生态系统，功能扩展容易
+- **Fixture强大**：依赖注入，作用域灵活
+- **参数化简单**：轻松实现数据驱动测试
+
+### unittest的局限
+- **语法冗长**：必须继承TestCase类
+- **断言复杂**：专用断言方法，可读性差
+- **扩展困难**：插件生态相对有限
+- **Fixture刚性**：setUp/tearDown耦合性高
+
+因此，对于新项目，强烈推荐使用pytest作为测试框架。 

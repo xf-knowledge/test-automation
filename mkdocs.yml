@@ -69,7 +69,6 @@ nav:
   - 自动化测试基础知识:
     - 基础知识: ./chapter1/base.md
     - 测试流程: ./chapter1/process.md
-    - 常用测试工具: ./chapter1/tool.md
   - Selenium WebDriver:
     - 环境搭建: ./chapter2/setup.md
     - 元素定位方法: ./chapter2/locator.md
@@ -91,12 +90,9 @@ nav:
      - 日志概念、作用与级别: ./chapter6/concept.md
      - logging模块四大组件: ./chapter6/components.md
      - 日志配置实践与最佳实践: ./chapter6/practice.md
-  - 练习题:
-    - 基础练习题: ./chapter7/base.md
-    - 登录页面自动化测试: ./chapter7/login.md
-    - Page Object模式实现: ./chapter7/po.md
-    - 单元测试练习: ./chapter7/unit-test.md
-    - 结合日志测试练习: ./chapter7/normal.md
+  - 编程实战练习:
+    - 编程题实战技能训练: ./chapter7/base.md
+    - 登录页面自动化测试综合案例: ./chapter7/login.md
 
 markdown_extensions:
   - pymdownx.highlight:
